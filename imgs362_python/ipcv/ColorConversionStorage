@@ -1,0 +1,21 @@
+ #Convert to R-hat,G-hat,B-hat
+        for k in range(0,3):
+            for i in range(0,src.shape[0]):
+                for j in range(0,src.shape[1]):
+                    if src[i,j,k] >  0.04045:
+                        src[i,j,k] = ((src[i,j,k]+0.055)/1.055) ** 2.4
+                    else:
+                        src[i,j,k] = src[i,j,k]/12.92
+
+        #Then convert to XYZ.
+        XYZconversionmatrix = numpy.transpose(numpy.asarray([0.4124530, .2126710, .0193340, .3575800, .7151600,\
+                                                             .1191930, .1804230, .0721690, .950227]).reshape((3,3)))
+        # conversion matrix assumes D65 whitepoint. Taken from OpenCV docs:
+        # https://docs.opencv.org/3.4/de/d25/imgproc_color_conversions.html
+
+        for i in range(0,src.shape[0]):
+            for j in range(0,src.shape[1]):
+                src[i,j,:] = numpy.matmul(XYZconversionmatrix,src[i,j,:])
+
+        #Now convert to Lab space. Need to define set of equations for this, wrote function 'XYZtoLab' to compute.
+        src = XYZtoLab(src)
